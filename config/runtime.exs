@@ -7,6 +7,6 @@ end
 config :nostrum,
   token: System.get_env("DISCORD_BOT_TOKEN")
 
-config :nostrum_boilerplate,
+config :emoji_race,
   env: Config.config_env(),
   dev_guild_id: System.get_env("DEV_GUILD_ID")

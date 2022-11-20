@@ -1,4 +1,4 @@
-defmodule NostrumBoilerplate.Application do
+defmodule EmojiRace.Application do
   # See https://hexdocs.pm/elixir/Application.html
   # for more information on OTP Applications
   @moduledoc false
@@ -8,12 +8,12 @@ defmodule NostrumBoilerplate.Application do
   @impl true
   def start(_type, _args) do
     children = [
-      {NostrumBoilerplate.Consumer.Supervisor, []}
+      {EmojiRace.Consumer.Supervisor, []}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
-    opts = [strategy: :one_for_one, name: NostrumBoilerplate.Supervisor]
+    opts = [strategy: :one_for_one, name: EmojiRace.Supervisor]
     Supervisor.start_link(children, opts)
   end
 end

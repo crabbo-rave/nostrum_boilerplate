@@ -1,4 +1,4 @@
-defmodule NostrumBoilerplate.Consumer.Supervisor do
+defmodule EmojiRace.Consumer.Supervisor do
   @moduledoc false
   use Supervisor
 
@@ -8,7 +8,7 @@ defmodule NostrumBoilerplate.Consumer.Supervisor do
 
   @impl true
   def init(_init_arg) do
-    children = [NostrumBoilerplate.Consumer]
+    children = [EmojiRace.Consumer]
 
     Supervisor.init(children, strategy: :one_for_one)
   end

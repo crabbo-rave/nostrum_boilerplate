@@ -1,0 +1,10 @@
+[ ] Start game command with timer
+[ ] Join button on the start command post
+[ ] Race game (every second add a random distant from 1-5)
+[ ] Show current person in lead in the race
+[ ] For two wins a user can punish another users by making them go back 3. 
+[ ] Have a genserver handle the game session, a dynamic supervisor to supervise the games, and registry to locate the genservers. (look at github/amadeus for reference)
+
+TODO:
+[ ] Check if emoji inputs are emojis. 
+[ ] One race per channel. use agent for a boolean value. if someone tries to make a race during an ongoing one, send message link to game start. 

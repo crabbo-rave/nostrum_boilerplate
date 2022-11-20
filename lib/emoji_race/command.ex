@@ -1,4 +1,4 @@
-defmodule NostrumBoilerplate.Command do
+defmodule EmojiRace.Command do
   @moduledoc """
   Behaviour for application command implementations.
   """
