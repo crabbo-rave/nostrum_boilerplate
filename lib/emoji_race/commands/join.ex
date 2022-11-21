@@ -1,21 +1,21 @@
 defmodule EmojiRace.Commands.Join do
-  alias Nostrum.Struct.Component.TextInput
-  alias Nostrum.Struct.Component.ActionRow
   alias Nostrum.Api
 
   # TODO: random emoji, no input modal
-  def input_modal(interaction) do
-    text_input = TextInput.text_input("Emoji", "emoji_input")
+  def join_game(interaction) do
+    prev_message = Edit.get(interaction.channel_id)
 
-    IO.inspect Api.create_interaction_response(interaction, %{
-      type: 9,
-      data: %{
-        title: "Enter your emoji",
-        custom_id: "join_modal",
-        components: [
-          ActionRow.action_row() |> ActionRow.put(text_input)
-        ]
-      }
-    })
+    # Edit.print_map()
+
+    emoji = %{name: "🤣"} # TODO: get_emoji with Race + Registry
+
+    new_desc = Enum.at(prev_message[:data][:embeds], 0).description <> "#{interaction.user.username} joined as #{emoji.name}"
+
+    # IO.inspect Enum.at(prev_message[:data][:embeds], 0).description
+
+    # IO.inspect new_desc
+
+    # FIXME: not editing interaction
+    Api.edit_interaction_response(interaction, put_in(Enum.at(prev_message[:data][:embeds], 0).description, new_desc))
   end
 end

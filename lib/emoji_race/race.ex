@@ -1,33 +1,37 @@
 defmodule EmojiRace.Racer do
-  defstruct [:emoji, done: 0]
+  defstruct [:emoji, :user, done: 0]
 end
 
+# TODO: supervise instances with DynamicSupervisor
+# TODO: rewrite with registries
 defmodule EmojiRace.Race do
   use GenServer
 
   alias EmojiRace.Racer
 
-  def emojies do
-    for emoji <- ["🤣", "😁", "🙈", "🔥", "😎", "😱", "🤡", "🦀", "🍾", "🙃"], do: %{ name: emoji }
-  end
+  @emojies ["🤣", "😁", "🙈", "🔥", "😎", "😱", "🤡", "🦀", "🍾", "🙃"]
 
+  def get_emoji(racers) do
+    emojies = for emoji <- @emojies, do: %{name: emoji}
+    racer_emojies = for %{emoji: e} <- racers, do: e
+    Enum.random(Enum.filter(emojies, &(&1.name not in racer_emojies)))
+  end
   @impl true
-  # add joinable value to true
   def init({len, time}) do
-    timer = Process.send_after(self(), :end_wait, time)
-    {:ok, %{timer: timer, length: len, joinable: true, racers: %{}}}
+    timer = Process.send_after(self(), :end_wait, time*1000)
+    {:ok, %{timer: timer, length: len, joinable: true, racers: []}}
   end
 
   @impl true
-  # TODO: :winner
-  def handle_call(:get, _from, state) do
+  def handle_call(:racers, _from, state) do
     {:reply, state, state}
   end
 
   @impl true
-  # TODO: move
-  def handle_cast({:join, user, emoji}, state) do
-    racers = Map.put(Map.get(state, :racers), user, %Racer{emoji: emoji})
+  # CHANGE FOR REGISTRY + channelid
+  def handle_cast({:join, user}, state) do
+    prev_racers = Map.get(state, :racers)
+    racers = [%Racer{user: user, emoji: get_emoji(prev_racers)} | prev_racers]
     {:noreply, %{state | racers: racers}}
   end
 

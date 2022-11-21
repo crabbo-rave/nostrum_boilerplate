@@ -14,7 +14,7 @@ defmodule EmojiRace.Consumer do
 
   # pattern match for the custom id of the button
   def handle_event({:INTERACTION_CREATE, %{data: %{custom_id: "join_game"}} = interaction, _ws_state}) do
-    EmojiRace.Commands.Join.input_modal(interaction)
+    EmojiRace.Commands.Join.join_game(interaction)
   end
 
   def handle_event({:INTERACTION_CREATE, interaction, _ws_state}) do

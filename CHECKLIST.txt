@@ -8,3 +8,4 @@
 TODO:
 [ ] Check if emoji inputs are emojis. 
 [ ] One race per channel. use agent for a boolean value. if someone tries to make a race during an ongoing one, send message link to game start. 
+[ ] Maybe refactor Edits module agent into in Race module 

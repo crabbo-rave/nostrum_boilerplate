@@ -36,11 +36,7 @@ defmodule EmojiRace.Commands.Start do
     %{value: length} = Command.get_option(interaction, "length")
     %{value: wait} = Command.get_option(interaction, "wait")
 
-    emoji = Enum.random(Race.emojies())
-
-    {:ok, server} = Race.start_link(length, wait)
-    Race.join(server, Api.get_current_user(), emoji)
-    # make a mailbox genserver that stores channel name and pid. join command joins the pid for the channel. also have a boolean value to tell if you can join or not for waitlist.
+    {:ok, _} = Race.start_link(length, wait) # with channel id
 
     embed =
       %Embed{}
@@ -52,7 +48,7 @@ defmodule EmojiRace.Commands.Start do
     join =
       Button.interaction_button("Join", "join_game", required: true, emoji: %{ name: "🤣" })
 
-    IO.inspect Api.create_interaction_response(interaction, %{
+    message = %{
       type: 4,
       data: %{
         embeds: [
@@ -62,6 +58,10 @@ defmodule EmojiRace.Commands.Start do
           ActionRow.action_row() |> ActionRow.append(join)
         ]
       }
-    })
+    }
+
+    Edit.put(interaction.channel_id, message)
+
+    Api.create_interaction_response(interaction, message)
   end
 end
