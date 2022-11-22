@@ -14,10 +14,4 @@ defmodule Edit do
   def put(channel_id, message) do
     Agent.update(__MODULE__, & Map.put(&1, channel_id, message))
   end
-
-
-  # REMOVE WHEN DONE DEBUGGING
-  def print_map do
-    IO.inspect Agent.get(__MODULE__, & &1)
-  end
 end

@@ -14,13 +14,13 @@ defmodule EmojiRace.Commands do
 
   def register_commands() do
     commands = for {name, command} <- @commands, do: command.spec(name)
-    IO.inspect(commands)
 
     # Global application commands take a couple of minutes to update in Discord,
     # so we use a test guild when in dev mode.
+    # TODO: doesnt register commands in none dev mode
     if Application.get_env(:emoji_race, :env) == :dev do
       guild_id = Application.get_env(:emoji_race, :dev_guild_id)
-      IO.inspect Nostrum.Api.bulk_overwrite_guild_application_commands(guild_id, commands)
+      Nostrum.Api.bulk_overwrite_guild_application_commands(guild_id, commands)
     else
       Nostrum.Api.bulk_overwrite_global_application_commands(commands)
     end
