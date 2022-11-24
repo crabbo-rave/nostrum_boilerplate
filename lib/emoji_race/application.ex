@@ -8,14 +8,16 @@ defmodule EmojiRace.Application do
   @impl true
   def start(_type, _args) do
     children = [
-      {EmojiRace.Consumer.Supervisor, []}
+      {EmojiRace.Consumer.Supervisor, []},
+      %{
+        id: EmojiRace.Edit,
+        start: {EmojiRace.Edit, :start_link, []}
+      }
     ]
 
-    # See https://hexdocs.pm/elixir/Supervisor.html
-    # for other strategies and supported options
     opts = [strategy: :one_for_one, name: EmojiRace.Supervisor]
     Supervisor.start_link(children, opts)
 
-    Edit.start_link()
+    Registry.start_link(keys: :unique, name: Registry.RaceRegistry) # TODO: Supervise with Dynamic Supervisor, and/or supervise in children
   end
 end

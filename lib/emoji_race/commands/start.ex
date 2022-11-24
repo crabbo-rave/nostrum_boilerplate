@@ -8,6 +8,7 @@ defmodule EmojiRace.Commands.Start do
   alias Nostrum.Struct.Component.Button
   alias EmojiRace.Command
   alias EmojiRace.Race
+  alias EmojiRace.Edit
 
   @impl Command
   def spec(name) do
@@ -36,12 +37,10 @@ defmodule EmojiRace.Commands.Start do
     %{value: length} = Command.get_option(interaction, "length")
     %{value: wait} = Command.get_option(interaction, "wait")
 
-    {:ok, _} = Race.start_link(length, wait) # with channel id
-
     embed =
       %Embed{}
-      |> Embed.put_title("Race") # put channel id in name
-      |> Embed.put_description("Waiting for players...") # NOTE: maybe do a countdown?
+      |> Embed.put_title("Race")
+      |> Embed.put_description("In <\##{interaction.channel_id}>\nWaiting for players...") # TODO: do a countdown
       |> Embed.put_color(16_776_960)
 
     # disable when timer runs out
@@ -60,8 +59,35 @@ defmodule EmojiRace.Commands.Start do
       }
     }
 
-    Edit.put(interaction.channel_id, message)
+    # Edit.put_message(interaction.channel_id, %{message | type: 7})
+    # Edit.put_interaction(interaction.channel_id, interaction)
 
-    Api.create_interaction_response(interaction, message)
+    # IO.inspect interaction
+
+    # Api.create_interaction_response(interaction, message)
+
+    case Race.start_link(interaction.channel_id, length, wait) do
+      {:ok, _} ->
+        Edit.put_message(interaction.channel_id, %{message | type: 7})
+        Edit.put_interaction(interaction.channel_id, interaction)
+
+        Api.create_interaction_response(interaction, message)
+      {:error, _} ->
+        %{id: id, channel_id: channel_id, guild_id: guild_id} = Edit.get_interaction(interaction.channel_id)
+
+        error_message = %{
+          type: 4,
+          data: %{
+            embeds: [
+              %Embed{}
+              |> Embed.put_title("Game already started in channel")
+              |> Embed.put_description("Game started in <\##{channel_id}>\nJoin the [race](https://discord.com/channels/#{guild_id}/#{channel_id}/#{id})")
+              |> Embed.put_color(16_776_960)
+            ]
+          }
+        }
+
+        Api.create_interaction_response(interaction, error_message) # TODO: maybe delete after 5 seconds
+    end
   end
 end
