@@ -6,6 +6,10 @@
 [ ] Have a genserver handle the game session, a dynamic supervisor to supervise the games, and registry to locate the genservers. (look at github/amadeus for reference)
 
 TODO:
-[ ] Check if emoji inputs are emojis. 
 [ ] One race per channel. use agent for a boolean value. if someone tries to make a race during an ongoing one, send message link to game start. 
 [ ] Maybe refactor Edits module agent into in Race module 
+
+FIX:
+[ ] disable join button when timer ends
+[ ] message for ongoing game contains the message link
+[ ] BROKE DISCORD BOT

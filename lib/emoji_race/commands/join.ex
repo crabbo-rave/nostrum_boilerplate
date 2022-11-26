@@ -1,13 +1,15 @@
 defmodule EmojiRace.Commands.Join do
   alias Nostrum.Api
-  alias Nostrum.Struct.Component.Button
+  alias Nostrum.Struct.Component.ActionRow
   alias EmojiRace.Race
   alias EmojiRace.Edit
 
-  # FIXME: not disabling button
+  # FIXME: not disabling button. wrong interaction still. CRASHES?!
   def disable_join(channel_id) do
     interaction = Edit.get_interaction(channel_id)
     message = Edit.get_message(channel_id)
+
+    IO.inspect interaction
 
     new_comp =
       Enum.at(message[:data][:components], 0).components
@@ -19,13 +21,19 @@ defmodule EmojiRace.Commands.Join do
       type: 7,
       data: %{
         embeds: message[:data][:embeds],
-        components: [new_comp]
+        components: [
+          ActionRow.action_row() |> ActionRow.append(new_comp)
+        ]
       }
     }
 
-    IO.inspect new_resp
+    if Enum.count(Race.racers(interaction.channel_id)) in [0, 1] do
+      throw :todo # delete the game message
+    else
+      Edit.put_message(interaction.channel_id, new_resp)
 
-    Api.create_interaction_response(interaction, new_resp)
+      Api.create_interaction_response(interaction, new_resp)
+    end
   end
 
   def join_game(interaction) do

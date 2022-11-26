@@ -1,5 +1,4 @@
-# TODO: supervise
-# TODO: maybe rewrite
+# TODO: maybe rewrite. work on state and discord stuff later.
 
 defmodule EmojiRace.Edit do
   use Agent
@@ -29,4 +28,6 @@ defmodule EmojiRace.Edit do
       |> Map.put(channel_id, interaction)
     Agent.update(__MODULE__, & Map.put(&1, :interactions, new_interaction))
   end
+
+  # TODO: make a function to delete a message after some number of seconds
 end

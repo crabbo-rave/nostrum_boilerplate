@@ -12,7 +12,8 @@ defmodule EmojiRace.Application do
       %{
         id: EmojiRace.Edit,
         start: {EmojiRace.Edit, :start_link, []}
-      }
+      },
+      {DynamicSupervisor, name: EmojiRace.Race.Supervisor, strategy: :one_for_one}
     ]
 
     opts = [strategy: :one_for_one, name: EmojiRace.Supervisor]

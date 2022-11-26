@@ -3,6 +3,7 @@ defmodule EmojiRace.Consumer do
   use Nostrum.Consumer
 
   alias EmojiRace.Commands
+  alias EmojiRace.Edit
 
   def start_link do
     Consumer.start_link(__MODULE__)
@@ -18,6 +19,7 @@ defmodule EmojiRace.Consumer do
   end
 
   def handle_event({:INTERACTION_CREATE, interaction, _ws_state}) do
+    # Edit.put_interaction(interaction.channel_id, interaction) # ????
     Commands.handle_interaction(interaction)
   end
 

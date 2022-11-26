@@ -2,7 +2,6 @@ defmodule EmojiRace.Racer do
   defstruct [:emoji, :user, done: 0]
 end
 
-# TODO: supervise instances with DynamicSupervisor
 defmodule EmojiRace.Race do
   use GenServer
 
@@ -17,20 +16,15 @@ defmodule EmojiRace.Race do
     Enum.random(Enum.filter(emojies, &(&1.name not in racer_emojies)))
   end
 
-  # TODO: figure out how to not have the id field
   @impl true
   def init({len, time, id}) do
-    timer = Process.send_after(self(), :end_wait, time*1000)
-    {:ok, %{id: id, timer: timer, length: len, joinable?: true, racers: []}}
+    timer = Process.send_after(self(), {:end_wait, id}, time*1000)
+    {:ok, %{timer: timer, length: len, joinable?: true, racers: []}}
   end
 
   @impl true
   def handle_call(:racers, _from, state) do
     {:reply, state.racers, state}
-  end
-
-  def handle_call(:joinable?, _from, state) do
-    {:reply, state.joinable?, state}
   end
 
   @impl true
@@ -41,11 +35,34 @@ defmodule EmojiRace.Race do
     {:noreply, %{state | racers: racers}}
   end
 
-  @impl true
-  def handle_info(:end_wait, state) do
-    Join.disable_join(state.id)
+  @impl true # use id when doing discord stuff
+  def handle_info({:end_wait, id}, state) do
+    # Join.disable_join(id) # TODO: single process for now. reimplement as multiple processes.
+    timer = Process.send_after(self(), {:move, id}, 1000)
 
-    {:noreply, %{state | joinable?: false}}
+    if Enum.count(state.racers) in [0,1] do
+      throw :too_little_racers
+    else
+      {:noreply, %{state | joinable?: false, timer: timer}}
+    end
+  end
+
+  def handle_info({:move, id}, state) do
+    new_distances =
+      state.racers
+      |> Enum.map(fn racer -> %Racer{racer | done: racer.done + rem(:erlang.unique_integer([:positive]), 5)} end)
+
+    IO.inspect new_distances
+
+    if Enum.find(new_distances, fn racer -> racer.done == state.length end) != nil do
+      IO.inspect "race done"
+
+      {:noreply, %{state | racers: new_distances}}
+    else
+      timer = Process.send_after(self(), {:move, id}, 1000)
+
+      {:noreply, %{state | racers: new_distances, timer: timer}}
+    end
   end
 
   def handle_info(_, state) do
@@ -54,23 +71,19 @@ defmodule EmojiRace.Race do
 
   # API
   def start_link(id, len, wait) do
-    GenServer.start_link(__MODULE__, {len, wait, id}, name: via_tuple(id))
+    GenServer.start_link(__MODULE__, {len, wait, id}, name: session_name(id))
   end
 
   def join(id, user) do
-    id |> via_tuple() |> GenServer.cast({:join, user})
+    id |> session_name() |> GenServer.cast({:join, user})
   end
 
+  # maybe remove with notifier
   def racers(id) do
-    id |> via_tuple() |> GenServer.call(:racers)
+    id |> session_name() |> GenServer.call(:racers)
   end
 
-  # maybe remove
-  def joinable?(id) do
-    id |> via_tuple() |> GenServer.call(:joinable?)
-  end
-
-  def via_tuple(id) do
+  def session_name(id) do
     {:via, Registry, {Registry.RaceRegistry, id}}
   end
 end

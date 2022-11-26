@@ -59,30 +59,32 @@ defmodule EmojiRace.Commands.Start do
       }
     }
 
-    # Edit.put_message(interaction.channel_id, %{message | type: 7})
-    # Edit.put_interaction(interaction.channel_id, interaction)
+    spec = %{id: interaction.channel_id, start: {EmojiRace.Race, :start_link, [interaction.channel_id, length, wait]}}
+    process = DynamicSupervisor.start_child(EmojiRace.Race.Supervisor, spec)
 
-    # IO.inspect interaction
-
-    # Api.create_interaction_response(interaction, message)
-
-    case Race.start_link(interaction.channel_id, length, wait) do
+    case process do # NOTE: module for supervisor?
       {:ok, _} ->
         Edit.put_message(interaction.channel_id, %{message | type: 7})
         Edit.put_interaction(interaction.channel_id, interaction)
 
         Api.create_interaction_response(interaction, message)
       {:error, _} ->
-        %{id: id, channel_id: channel_id, guild_id: guild_id} = Edit.get_interaction(interaction.channel_id)
+        %{message: %{id: id}, channel_id: channel_id, guild_id: guild_id} = Edit.get_interaction(interaction.channel_id)
+
+        goto_button =
+          Button.link_button("Go to ongoing game", "https://discord.com/channels/#{guild_id}/#{channel_id}/#{id}", required: true, emoji: %{ name: "🤣" })
 
         error_message = %{
           type: 4,
           data: %{
             embeds: [
               %Embed{}
-              |> Embed.put_title("Game already started in channel")
-              |> Embed.put_description("Game started in <\##{channel_id}>\nJoin the [race](https://discord.com/channels/#{guild_id}/#{channel_id}/#{id})")
+              |> Embed.put_title("Race already started")
+              |> Embed.put_description("Race already started in <\##{channel_id}>")
               |> Embed.put_color(16_776_960)
+            ],
+            components: [
+              ActionRow.action_row() |> ActionRow.append(goto_button)
             ]
           }
         }
