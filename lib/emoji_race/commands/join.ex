@@ -1,3 +1,5 @@
+# TODO: move join out of commands
+
 defmodule EmojiRace.Commands.Join do
   alias Nostrum.Api
   alias Nostrum.Struct.Component.ActionRow

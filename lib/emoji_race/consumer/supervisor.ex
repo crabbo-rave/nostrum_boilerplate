@@ -1,4 +1,4 @@
-defmodule EmojiRace.Consumer.Supervisor do
+defmodule Consumer.Supervisor do
   @moduledoc false
   use Supervisor
 
@@ -8,7 +8,7 @@ defmodule EmojiRace.Consumer.Supervisor do
 
   @impl true
   def init(_init_arg) do
-    children = [EmojiRace.Consumer]
+    children = [Consumer]
 
     Supervisor.init(children, strategy: :one_for_one)
   end

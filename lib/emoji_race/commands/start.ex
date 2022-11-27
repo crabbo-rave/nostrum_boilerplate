@@ -7,7 +7,7 @@ defmodule EmojiRace.Commands.Start do
   alias Nostrum.Struct.Component.ActionRow
   alias Nostrum.Struct.Component.Button
   alias EmojiRace.Command
-  alias EmojiRace.Race
+  alias EmojiRace.Sessions.Race
   alias EmojiRace.Edit
 
   @impl Command
@@ -16,12 +16,6 @@ defmodule EmojiRace.Commands.Start do
       name: name,
       description: "Starts a race",
       options: [
-        %{
-          type: 4,
-          name: "length",
-          description: "Length of the race",
-          required: true
-        },
         %{
           type: 4,
           name: "wait",
@@ -34,7 +28,6 @@ defmodule EmojiRace.Commands.Start do
 
   @impl Command
   def handle_interaction(interaction) do
-    %{value: length} = Command.get_option(interaction, "length")
     %{value: wait} = Command.get_option(interaction, "wait")
 
     embed =
@@ -59,7 +52,7 @@ defmodule EmojiRace.Commands.Start do
       }
     }
 
-    spec = %{id: interaction.channel_id, start: {EmojiRace.Race, :start_link, [interaction.channel_id, length, wait]}}
+    spec = %{id: interaction.channel_id, start: {EmojiRace.Race, :start_link, [interaction.channel_id, wait]}}
     process = DynamicSupervisor.start_child(EmojiRace.Race.Supervisor, spec)
 
     case process do # NOTE: module for supervisor?
